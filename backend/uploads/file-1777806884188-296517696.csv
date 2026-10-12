@@ -1,0 +1,13 @@
+category,quantity,unit,period_start,period_end,sub_category,notes
+electricity,12500,kWh,2026-04-01,2026-04-30,Grid Power,April office electricity bill
+natural_gas,850,m³,2026-04-01,2026-04-30,Heating,April heating gas usage
+fuel,420,litres,2026-04-01,2026-04-30,Diesel Generator,Backup generator fuel
+water,380,m³,2026-04-01,2026-04-30,Municipal Supply,April water consumption
+waste,650,kg,2026-04-01,2026-04-30,General Waste,Monthly waste disposal
+transport,3200,km,2026-04-01,2026-04-30,Fleet Vehicles,April fleet mileage
+electricity,11800,kWh,2026-03-01,2026-03-31,Grid Power,March office electricity bill
+natural_gas,920,m³,2026-03-01,2026-03-31,Heating,March heating gas usage
+fuel,380,litres,2026-03-01,2026-03-31,Diesel Generator,Backup generator fuel
+water,350,m³,2026-03-01,2026-03-31,Municipal Supply,March water consumption
+waste,580,kg,2026-03-01,2026-03-31,General Waste,Monthly waste disposal
+transport,2900,km,2026-03-01,2026-03-31,Fleet Vehicles,March fleet mileage

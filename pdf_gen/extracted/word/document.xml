@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>`n<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">`n<w:body>
+<w:p><w:r><w:t>CFIS — Complete Technical Report</w:t></w:r></w:p>
+<w:p><w:r><w:t>Generated: 2026-08-25T18:29:05+05:00</w:t></w:r></w:p>
+<w:p><w:r><w:t>Prepared by: AI assistant (Copilot CLI runtime in VS Code)</w:t></w:r></w:p>
+<w:p><w:r><w:t> </w:t></w:r></w:p>
+<w:p><w:r><w:t>Executive summary:</w:t></w:r></w:p>
+<w:p><w:r><w:t>CFIS is a web application for collecting, storing, and analyzing corporate carbon emissions data. It is composed of a React single-page frontend and a Node.js + Express backend. The backend persists data via Sequelize into a SQLite database file for the current deployment.</w:t></w:r></w:p>
+<w:p><w:r><w:t> </w:t></w:r></w:p>
+<w:p><w:r><w:t>Main backend components and their purpose:</w:t></w:r></w:p>
+<w:p><w:r><w:t>• server.js — Application entry point. Initializes Express, global middleware (CORS, helmet, JSON body parser), mounts API routes, and starts the HTTP server.</w:t></w:r></w:p>
+<w:p><w:r><w:t>• config/database.js — Sequelize configuration. Currently configured to use the sqlite dialect with a file-based storage at backend/cfis.sqlite. This centralizes connection options and logging behavior.</w:t></w:r></w:p>
+<w:p><w:r><w:t>• models/ (Sequelize models) — Domain models include User, Company, CompanyMember, Department, EmissionData, BillUpload, and AuditLog. models/index.js wires associations (hasMany / belongsTo). These models represent the persistent data shape and relationships used across the API.</w:t></w:r></w:p>
+<w:p><w:r><w:t>• middleware/auth.js — Authentication and authorization utilities. Implements JWT validate/verify, a ROLE_PERMISSIONS map for centralized capabilities, helper functions (hasPermission, requirePermission), and company-scoped membership checks used across routes.</w:t></w:r></w:p>
+<w:p><w:r><w:t>• routes/ — Organized REST endpoints: auth (login/register), company (CRUD and admin delete), companyMembers (invite, list, remove with self-removal protection), departments, emissions (manual entry, list, delete, and CSV export), baseline and ai analytics, OCR and bill upload handlers. Each route enforces permission/membership checks provided by middleware/auth.js.</w:t></w:r></w:p>
+<w:p><w:r><w:t>• utils/logAudit.js (or equivalent) — Centralized audit logging used to record sensitive actions such as company deletion and data export, storing entries in AuditLog for compliance and traceability.</w:t></w:r></w:p>
+<w:p><w:r><w:t>• uploads/ — Local filesystem area for bill/pdf/uploads. BillUpload model stores metadata and path references. OCR pipelines consume these files and may create EmissionData records.</w:t></w:r></w:p>
+<w:p><w:r><w:t>• ml/ — Trained machine learning artifacts (joblib files) and scripts used by analytics endpoints (baseline, forecasting, anomaly detection). These are invoked by server-side analytics endpoints as part of processing.</w:t></w:r></w:p>
+<w:p><w:r><w:t> </w:t></w:r></w:p>
+<w:p><w:r><w:t>Main frontend components and their purpose:</w:t></w:r></w:p>
+<w:p><w:r><w:t>• src/index.js — React entry; mounts App component and wraps the application with AuthContext provider for authentication state.</w:t></w:r></w:p>
+<w:p><w:r><w:t>• src/App.js — Router definitions and route protection. Uses ProtectedRoute for role-based page access and public routes for onboarding/login.</w:t></w:r></w:p>
+<w:p><w:r><w:t>• src/context/AuthContext.js — Central auth state management: holds current user, JWT token, login/logout helpers and exposes useAuth hook to components.</w:t></w:r></w:p>
+<w:p><w:r><w:t>• src/utils/api.js — Axios wrapper configured with baseURL and automatic Authorization header injection. Central place to handle HTTP errors, token refreshes, and API calls.</w:t></w:r></w:p>
+<w:p><w:r><w:t>• src/pages/* — Page components that implement user flows: Dashboard, CompanyProfile, Companies (admin), Departments, DataCollection (manual emission entry), BillUpload, Baseline/Analytics. UI controls are conditionally rendered based on role and membership data from AuthContext and API responses.</w:t></w:r></w:p>
+<w:p><w:r><w:t>• src/components/Layout.js — Main navigation and layout. Shows/hides navigation items based on user.role and membership roles; connects to ProtectedRoute for access gating.</w:t></w:r></w:p>
+<w:p><w:r><w:t> </w:t></w:r></w:p>
+<w:p><w:r><w:t>Technologies used and where they are implemented:</w:t></w:r></w:p>
+<w:p><w:r><w:t>• Node.js + Express — Backend server framework handling HTTP routing, middleware, and request lifecycle (server.js and routes/).</w:t></w:r></w:p>
+<w:p><w:r><w:t>• Sequelize ORM — Data models and DB access implemented in backend/models/*.js and configured in backend/config/database.js. Models map to tables persisted in SQLite file.</w:t></w:r></w:p>
+<w:p><w:r><w:t>• SQLite (sqlite3) — File-based persistence; storage path set in config/database.js. Suitable for development and small deployments; consider Postgres for production scale.</w:t></w:r></w:p>
+<w:p><w:r><w:t>• JSON Web Tokens (jsonwebtoken) — Authentication tokens issued and verified in middleware/auth.js and auth routes; frontend stores and sends tokens via Axios wrapper.</w:t></w:r></w:p>
+<w:p><w:r><w:t>• bcryptjs — Password hashing for user credentials in auth flows.</w:t></w:r></w:p>
+<w:p><w:r><w:t>• multer, pdf-parse, tesseract.js — File uploads and OCR pipeline implemented in upload/ocr routes. multer handles multipart forms, pdf-parse extracts text from PDFs, tesseract.js performs OCR on images when needed.</w:t></w:r></w:p>
+<w:p><w:r><w:t>• xlsx and csv-parser — Excel and CSV processing for imports/exports. Emissions export endpoint builds CSV in backend and returns as attachment (consider streaming for large exports).</w:t></w:r></w:p>
+<w:p><w:r><w:t>• React (Create React App) — Frontend SPA implementation with components and pages in frontend/src. Build using react-scripts produces static assets in frontend/build.</w:t></w:r></w:p>
+<w:p><w:r><w:t>• Axios — HTTP client used by frontend to call API endpoints and attach auth tokens (src/utils/api.js).</w:t></w:r></w:p>
+<w:p><w:r><w:t>• Tailwind / CSS — Styling via utility classes in components. Confirm exact system by checking frontend/package.json (tailwind dependency may or may not be present).</w:t></w:r></w:p>
+<w:p><w:r><w:t>• ML artifacts (joblib) — Pretrained models stored in backend/ml and used by baseline/analytics endpoints to produce forecasts and detect anomalies.</w:t></w:r></w:p>
+<w:p><w:r><w:t> </w:t></w:r></w:p>
+<w:p><w:r><w:t>How these technologies integrate (implementation details):</w:t></w:r></w:p>
+<w:p><w:r><w:t>• Request flow: Frontend issues API calls via Axios to backend endpoints (protected with JWT). Backend authenticates via middleware/auth.js and enforces permissions and company membership checks. Routes call Sequelize models to read/write data to SQLite. Sensitive actions call logAudit to record an AuditLog entry.</w:t></w:r></w:p>
+<w:p><w:r><w:t>• Authorization: Central ROLE_PERMISSIONS map provides a single source of truth for capabilities. Company-scoped access additionally queries CompanyMember to allow company_rep members to manage company resources even when not the company owner. Admin role has global overrides for management and destructive operations.</w:t></w:r></w:p>
+<w:p><w:r><w:t>• File handling: Uploaded bills are accepted via multer, stored in uploads/ with metadata in BillUpload. OCR/parsing jobs process these files (pdf-parse or tesseract.js) and create or suggest EmissionData records. The OCR route enforces membership checks before confirming/committing extracted data.</w:t></w:r></w:p>
+<w:p><w:r><w:t>• Analytics: EmissionData is aggregated by baseline/ai endpoints which may load ML artifacts (joblib) from backend/ml. These endpoints are guarded by membership/role checks and return summaries/forecasts to the frontend for visualization.</w:t></w:r></w:p>
+<w:p><w:r><w:t>• Export: Emissions export endpoint is protected with requirePermission('exportCarbonFootprintData') and a company membership check (admin or company_rep/auditor member). It builds a CSV response with selected fields and logs the export action via AuditLog.</w:t></w:r></w:p>
+<w:p><w:r><w:t> </w:t></w:r></w:p>
+<w:p><w:r><w:t>Security, auditing and operational notes:</w:t></w:r></w:p>
+<w:p><w:r><w:t>• Credentials & secrets: JWT secret, email credentials, and DB connection should be configured via environment variables and not committed in source control.</w:t></w:r></w:p>
+<w:p><w:r><w:t>• Audit: AuditLog records critical actions. Recommend expanding to capture permission-denied attempts for forensic visibility.</w:t></w:r></w:p>
+<w:p><w:r><w:t>• Backups & scaling: SQLite is appropriate for development and small deployments. For production, migrate to Postgres/MySQL for concurrent write capacity, backups, and scaling. Implement periodic backups if continuing with SQLite.</w:t></w:r></w:p>
+<w:p><w:r><w:t> </w:t></w:r></w:p>
+<w:p><w:r><w:t>Recommendations and next steps:</w:t></w:r></w:p>
+<w:p><w:r><w:t>1. Add environment-driven DB config to support Postgres in production, and prepare a migration script to transfer data from SQLite.</w:t></w:r></w:p>
+<w:p><w:r><w:t>2. Convert CSV export to streaming implementation if large datasets are expected, to avoid memory pressure.</w:t></w:r></w:p>
+<w:p><w:r><w:t>3. Extend AuditLog coverage to record permission-denied attempts and other security-relevant events.</w:t></w:r></w:p>
+<w:p><w:r><w:t>4. Harden frontend UX by hiding controls that users are unauthorized to use and show clear messages when actions require higher permissions.</w:t></w:r></w:p>
+<w:p><w:r><w:t>5. Add integration tests for permission flows, company membership behaviors, export, and OCR confirmation flows.</w:t></w:r></w:p>
+<w:p><w:r><w:t> </w:t></w:r></w:p>
+<w:p><w:r><w:t>End of report.</w:t></w:r></w:p>
+</w:body></w:document>
